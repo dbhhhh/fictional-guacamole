@@ -450,11 +450,11 @@ def save_to_word(results, output_file, cugraph_available):
         
         doc.add_heading('测试结果对比表（相同数据集）', level=1)
         
-        table = doc.add_table(rows=1, cols=10)
+        table = doc.add_table(rows=1, cols=12)
         table.style = 'Table Grid'
         
         hdr_cells = table.rows[0].cells
-        headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "读取时间", "计算时间", "状态"]
+        headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "读取时间", "计算时间", "内存使用", "内存峰值", "状态"]
         for i, header in enumerate(headers):
             hdr_cells[i].text = header
             hdr_cells[i].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -473,7 +473,9 @@ def save_to_word(results, output_file, cugraph_available):
             row_cells[6].text = result['total_time']
             row_cells[7].text = read_time
             row_cells[8].text = compute_time
-            row_cells[9].text = "成功" if result['success'] else "失败"
+            row_cells[9].text = result.get('memory_usage', 'N/A')
+            row_cells[10].text = result.get('rss_peak', 'N/A')
+            row_cells[11].text = "成功" if result['success'] else "失败"
             
             for cell in row_cells:
                 cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
