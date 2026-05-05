@@ -29,13 +29,6 @@ wsl-*
 .DS_Store
 Thumbs.db
 
-# 忽略大数据集（超过 50MB 的文件）
-test/*.txt
-tlc/*.txt
-tlc/*.cfg
-tlc/*.tla
-tlc/*.dot
-tlc/*.st
-tlc/*.fp
-tlc/*.jar
-tlc/states/
+# 保留数据集文件夹
+!test/
+!tlc/
