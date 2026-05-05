@@ -1,0 +1,37 @@
+Strongly Connected Component by Xuhao Chen
+Filename: /mnt/d/Desktop/soc-Epinions1.txt
+File extension: .txt
+Comparing with .mtx: 7
+Comparing with .graph: 13
+Comparing with .gr: 13
+Comparing with .el: 15
+Comparing with .txt: 0
+Recognized .el/.txt format
+Reading edgelist (.el) input file /mnt/d/Desktop/soc-Epinions1.txt
+Removing self loops... 0 selfloops are removed
+Removing redundent edges... 0 redundent edges are removed
+num_vertices 75888 num_edges 508837
+	runtime [read_graph] = 177.879000 ms.
+Calculating degree... Done
+Filename: /mnt/d/Desktop/soc-Epinions1.txt
+File extension: .txt
+Comparing with .mtx: 7
+Comparing with .graph: 13
+Comparing with .gr: 13
+Comparing with .el: 15
+Comparing with .txt: 0
+Recognized .el/.txt format
+Reading edgelist (.el) input file /mnt/d/Desktop/soc-Epinions1.txt
+Removing self loops... 0 selfloops are removed
+Removing redundent edges... 0 redundent edges are removed
+num_vertices 75888 num_edges 508837
+	runtime [read_graph] = 143.550000 ms.
+Calculating degree... Done
+Launching OpenMP SCC solver...
+Launching 16 threads...
+	iterations = 0.
+	runtime [openmp] = 0.009000 ms.
+Verifying...
+	num_trivial=41121, num_nontrivial=1064, total_num_scc=42185, biggest_scc_size=32223
+	runtime [verify] = 5.194000 ms.
+Correct
