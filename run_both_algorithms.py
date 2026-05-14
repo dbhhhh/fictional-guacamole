@@ -275,6 +275,10 @@ def run_gardenia_algorithm(dataset_path):
             if edges_match:
                 result['num_edges'] = edges_match.group(1)
             
+            read_time_match = re.search(r'文件读取完成，耗时[:=]\s*([\d.]+)', output_text)
+            if read_time_match:
+                result['read_time'] = float(read_time_match.group(1))
+            
             total_scc_match = re.search(r'SCC总数[:=]\s*(\d+)', output_text)
             if total_scc_match:
                 result['total_scc'] = total_scc_match.group(1)
@@ -331,13 +335,13 @@ def generate_table(results):
     if len(results) == 0:
         return "无测试结果"
     
-    print("\n" + "="*140)
+    print("\n" + "="*100)
     print("                    SCC 算法对比结果表格（相同数据集）")
-    print("="*140)
+    print("="*100)
     
-    headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "读取时间", "计算时间", "内存使用", "状态"]
+    headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "内存使用", "状态"]
     
-    col_widths = [18, 15, 10, 10, 10, 12, 12, 12, 12, 14, 10]
+    col_widths = [18, 15, 10, 10, 10, 12, 12, 14, 10]
     
     header_line = "|"
     for i, header in enumerate(headers):
@@ -347,18 +351,10 @@ def generate_table(results):
     
     for result in results:
         status = "✓ 成功" if result['success'] else f"✗ 失败"
-        read_time = f"{result.get('read_time', 'N/A'):.4f}" if result.get('read_time') != 'N/A' else "N/A"
-        compute_time = f"{result.get('compute_time', 'N/A'):.4f}" if result.get('compute_time') != 'N/A' else "N/A"
         
         memory_usage = result.get('memory_usage', 'N/A')
         if memory_usage == 'N/A':
             memory_usage = f"{result.get('rss_peak', 'N/A')} MB" if result.get('rss_peak', 'N/A') != 'N/A' else "N/A"
-        
-        rss_peak = result.get('rss_peak', 'N/A')
-        if rss_peak != 'N/A':
-            rss_peak_display = f"{rss_peak} MB"
-        else:
-            rss_peak_display = "N/A"
         
         row = f"| {result['file_name']:{col_widths[0]}} |"
         row += f" {result['algorithm']:{col_widths[1]}} |"
@@ -367,18 +363,16 @@ def generate_table(results):
         row += f" {result['total_scc']:{col_widths[4]}} |"
         row += f" {result['biggest_scc']:{col_widths[5]}} |"
         row += f" {result['total_time']:{col_widths[6]}} |"
-        row += f" {read_time:{col_widths[7]}} |"
-        row += f" {compute_time:{col_widths[8]}} |"
-        row += f" {memory_usage:{col_widths[9]}} |"
-        row += f" {status:{col_widths[10]}} |"
+        row += f" {memory_usage:{col_widths[7]}} |"
+        row += f" {status:{col_widths[8]}} |"
         print(row)
     
-    print("="*140)
+    print("="*100)
     
     return headers, results
 
 def save_to_csv(results, output_file):
-    headers = ["数据集", "算法", "图类型", "顶点数", "边数", "SCC总数", "最大SCC", "平凡SCC", "非平凡SCC", "总时间", "读取时间", "计算时间", "验证时间", "内存使用", "内存使用峰值", "算法结果", "状态", "错误信息"]
+    headers = ["数据集", "算法", "图类型", "顶点数", "边数", "SCC总数", "最大SCC", "平凡SCC", "非平凡SCC", "总时间", "内存使用", "内存使用峰值", "算法结果", "状态", "错误信息"]
     
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -386,15 +380,6 @@ def save_to_csv(results, output_file):
         
         for result in results:
             status = "成功" if result['success'] else "失败"
-            
-            read_time_val = result.get('read_time', 'N/A')
-            read_time = f"{read_time_val:.4f}" if isinstance(read_time_val, (int, float)) else str(read_time_val)
-            
-            compute_time_val = result.get('compute_time', 'N/A')
-            compute_time = f"{compute_time_val:.4f}" if isinstance(compute_time_val, (int, float)) else str(compute_time_val)
-            
-            verify_time_val = result.get('verify_time', 'N/A')
-            verify_time = f"{verify_time_val:.4f}" if isinstance(verify_time_val, (int, float)) else str(verify_time_val)
             
             memory_usage = result.get('memory_usage', 'N/A')
             if memory_usage == 'N/A':
@@ -417,9 +402,6 @@ def save_to_csv(results, output_file):
                 result.get('num_trivial', 'N/A'),
                 result.get('num_nontrivial', 'N/A'),
                 result['total_time'],
-                read_time,
-                compute_time,
-                verify_time,
                 memory_usage,
                 rss_peak_display,
                 result.get('algorithm_result', 'N/A'),
@@ -450,19 +432,21 @@ def save_to_word(results, output_file, cugraph_available):
         
         doc.add_heading('测试结果对比表（相同数据集）', level=1)
         
-        table = doc.add_table(rows=1, cols=12)
+        table = doc.add_table(rows=1, cols=9)
         table.style = 'Table Grid'
         
         hdr_cells = table.rows[0].cells
-        headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "读取时间", "计算时间", "内存使用", "内存峰值", "状态"]
+        headers = ["数据集", "算法", "顶点数", "边数", "SCC总数", "最大SCC", "总时间", "内存使用", "状态"]
         for i, header in enumerate(headers):
             hdr_cells[i].text = header
             hdr_cells[i].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         
         for result in results:
             row_cells = table.add_row().cells
-            read_time = f"{result.get('read_time', 'N/A'):.4f}" if result.get('read_time') != 'N/A' else "N/A"
-            compute_time = f"{result.get('compute_time', 'N/A'):.4f}" if result.get('compute_time') != 'N/A' else "N/A"
+            
+            memory_usage = result.get('memory_usage', 'N/A')
+            if memory_usage == 'N/A':
+                memory_usage = f"{result.get('rss_peak', 'N/A')} MB" if result.get('rss_peak', 'N/A') != 'N/A' else "N/A"
             
             row_cells[0].text = result['file_name']
             row_cells[1].text = result['algorithm']
@@ -471,11 +455,8 @@ def save_to_word(results, output_file, cugraph_available):
             row_cells[4].text = result['total_scc']
             row_cells[5].text = result['biggest_scc']
             row_cells[6].text = result['total_time']
-            row_cells[7].text = read_time
-            row_cells[8].text = compute_time
-            row_cells[9].text = result.get('memory_usage', 'N/A')
-            row_cells[10].text = result.get('rss_peak', 'N/A')
-            row_cells[11].text = "成功" if result['success'] else "失败"
+            row_cells[7].text = memory_usage
+            row_cells[8].text = "成功" if result['success'] else "失败"
             
             for cell in row_cells:
                 cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -508,18 +489,6 @@ def save_to_word(results, output_file, cugraph_available):
                 doc.add_paragraph(f"  - 平凡SCC: {gardenia['num_trivial']}")
                 doc.add_paragraph(f"  - 非平凡SCC: {gardenia['num_nontrivial']}")
                 
-                read_time = gardenia.get('read_time', 'N/A')
-                read_time_str = f"{read_time:.4f}" if isinstance(read_time, (int, float)) else str(read_time)
-                doc.add_paragraph(f"  - 读取时间: {read_time_str} 秒")
-                
-                compute_time = gardenia.get('compute_time', 'N/A')
-                compute_time_str = f"{compute_time:.4f}" if isinstance(compute_time, (int, float)) else str(compute_time)
-                doc.add_paragraph(f"  - 计算时间: {compute_time_str} 秒")
-                
-                verify_time = gardenia.get('verify_time', 'N/A')
-                verify_time_str = f"{verify_time:.4f}" if isinstance(verify_time, (int, float)) else str(verify_time)
-                doc.add_paragraph(f"  - 验证时间: {verify_time_str} 秒")
-                
                 doc.add_paragraph(f"  - 总时间: {gardenia['total_time']} 秒")
                 doc.add_paragraph(f"  - 内存使用峰值: {gardenia.get('memory_usage', 'N/A')}")
                 doc.add_paragraph(f"  - 算法结果: {gardenia.get('algorithm_result', 'N/A')}")
@@ -533,18 +502,6 @@ def save_to_word(results, output_file, cugraph_available):
                 doc.add_paragraph(f"  - 边数: {cugraph['num_edges']}")
                 doc.add_paragraph(f"  - SCC总数: {cugraph['total_scc']}")
                 doc.add_paragraph(f"  - 最大SCC: {cugraph['biggest_scc']}")
-                
-                cugraph_read_time = cugraph.get('read_time', 'N/A')
-                cugraph_read_time_str = f"{cugraph_read_time:.4f}" if isinstance(cugraph_read_time, (int, float)) else str(cugraph_read_time)
-                doc.add_paragraph(f"  - 读取时间: {cugraph_read_time_str} 秒")
-                
-                cugraph_create_time = cugraph.get('create_time', 'N/A')
-                cugraph_create_time_str = f"{cugraph_create_time:.4f}" if isinstance(cugraph_create_time, (int, float)) else str(cugraph_create_time)
-                doc.add_paragraph(f"  - 建图时间: {cugraph_create_time_str} 秒")
-                
-                cugraph_compute_time = cugraph.get('compute_time', 'N/A')
-                cugraph_compute_time_str = f"{cugraph_compute_time:.4f}" if isinstance(cugraph_compute_time, (int, float)) else str(cugraph_compute_time)
-                doc.add_paragraph(f"  - 计算时间: {cugraph_compute_time_str} 秒")
                 
                 doc.add_paragraph(f"  - 总时间: {cugraph['total_time']} 秒")
                 doc.add_paragraph(f"  - 内存使用: {cugraph.get('memory_usage', 'N/A')}")
@@ -588,7 +545,7 @@ def save_to_word(results, output_file, cugraph_available):
         return False
 
 if __name__ == "__main__":
-    test_folder = 'd:/Desktop/test'
+    test_folder = 'test'
     
     default_datasets = []
     if os.path.isdir(test_folder):
