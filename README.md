@@ -1,6 +1,69 @@
-# SCC Algorithm Comparison Project
+# Fictional Guacamole
 
-本项目用于对比分析 **强连通分量（SCC）算法** 在 GPU 平台上的性能表现。
+本项目包含 **SCC 算法性能对比** 和 **TLA+ 规范示例** 两个主要部分。
+
+## 项目组成
+
+### 1. SCC Algorithm Comparison (SCC 算法性能对比)
+
+用于对比分析 **强连通分量（SCC）算法** 在 GPU 平台上的性能表现。
+
+**核心文件：**
+- [gardenia_scc_gpu.py](gardenia_scc_gpu.py) - Gardenia SCC GPU 实现
+- [gardenia_scc_gpu_optimized.py](gardenia_scc_gpu_optimized.py) - 优化版本
+- [cugraph-main/run_edge_list.py](cugraph-main/run_edge_list.py) - cuGraph SCC 实现
+- [run_both_algorithms.py](run_both_algorithms.py) - 主测试脚本
+
+**GPU 算法：**
+- Gardenia cuGraph - 基于 cuGraph API 的 GPU 加速实现
+- cuGraph 原生实现
+
+**数据集：**
+- `test/` 目录包含测试数据集
+- 支持 TLC 标准图格式
+
+### 2. TLA+ Specifications (TLA+ 规范示例)
+
+[tlc/examples/](tlc/examples/) 目录包含 TLA+ 规范示例：
+
+| 示例 | 文件 |
+|------|------|
+| DieHard | `tlc/examples/DieHard/DieHard.tla` |
+| Missionaries and Cannibals | `tlc/examples/MissionariesAndCannibals/` |
+| MultiPaxos-SMR | `tlc/examples/MultiPaxos-SMR/` |
+| NanoBlockchain | `tlc/examples/NanoBlockchain/` |
+| ReadersWriters | `tlc/examples/ReadersWriters/` |
+| EWD840 | `tlc/examples/ewd840/` |
+
+**TLC 根目录：**
+- [tlc/](tlc/) - 包含主要 TLA+ 规范文件
+- 测试状态文件保存在 `tlc/states/` 目录
+
+### 3. Gardenia Framework (Gardenia 图计算框架)
+
+[gardenia-master/](gardenia-master/) - 高性能图计算框架源码，包含：
+- `src/` - 核心源代码（BFS, SCC, PageRank 等）
+- `include/` - 头文件
+- `datasets/` - 测试数据集
+
+### 4. cuGraph (cuGraph 图计算库)
+
+[cugraph-main/](cugraph-main/) - RAPIDS cuGraph 源码和实验结果
+
+## 环境要求
+
+- Python 3.8+
+- CUDA 11.0+ (GPU 版本)
+- cuGraph (RAPIDS)
+- TLA+ Toolbox (用于 TLC 规范验证)
+
+## 作者
+
+dbhhhh
+
+## 许可证
+
+MIT License
 
 ## 算法说明
 
