@@ -1,194 +1,107 @@
 # Fictional Guacamole
 
-本项目包含 **SCC 算法性能对比** 和 **TLA+ 规范示例** 两个主要部分。
+## 项目概述
 
-## 项目组成
+本项目包含以下三个主要部分：
+1. **SCC 算法性能对比** - Gardenia 与 cuGraph 的 GPU 强连通分量算法对比
+2. **TLA+ 规范与示例** - TLA+ 形式化规范和从模型生成的图数据
+3. **图计算框架源码** - Gardenia 和 cuGraph 完整源码
 
-### 1. SCC Algorithm Comparison (SCC 算法性能对比)
+## 目录结构
 
-用于对比分析 **强连通分量（SCC）算法** 在 GPU 平台上的性能表现。
+```
+.
+├── gardenia_scc_gpu.py              # Gardenia SCC GPU 实现
+├── gardenia_scc_gpu_optimized.py    # Gardenia SCC 优化版本
+├── run_both_algorithms.py           # SCC 算法对比测试脚本
+├── test/                            # 测试数据集目录
+│   ├── edge_list.txt                # 边列表数据
+│   ├── p2p-Gnutella08.txt           # Gnutella P2P 网络数据
+│   └── edge_list_*.txt              # 各 TLA+ 模型的边列表
+├── tlc/                             # TLA+ 规范目录
+│   ├── *.tla                        # TLA+ 规范文件
+│   ├── edge_list_*.txt              # 从模型生成的边列表
+│   ├── states/                      # TLC 模型检查状态文件
+│   ├── examples/                    # TLA+ 完整示例
+│   └── specifications.py            # 规范配置
+├── cugraph-main/                    # cuGraph RAPIDS 图计算库
+│   ├── run_edge_list.py            # cuGraph SCC 实现
+│   ├── cpp/                        # C++/CUDA 核心实现
+│   ├── python/                     # Python API
+│   └── cugra实验结果_*.txt         # cuGraph 实验结果
+└── gardenia-master/                 # Gardenia 图计算框架
+    ├── src/                        # 图算法源码 (BFS, SCC, PageRank等)
+    ├── mining/                     # 图挖掘算法
+    ├── datasets/                   # 测试数据集
+    └── cub/                       # CUB GPU 库
+```
 
-**核心文件：**
-- [gardenia_scc_gpu.py](gardenia_scc_gpu.py) - Gardenia SCC GPU 实现
+## 主要内容
+
+### 1. SCC 算法对比
+
+**核心脚本：**
+- [gardenia_scc_gpu.py](gardenia_scc_gpu.py) - Gardenia cuGraph SCC 实现
 - [gardenia_scc_gpu_optimized.py](gardenia_scc_gpu_optimized.py) - 优化版本
-- [cugraph-main/run_edge_list.py](cugraph-main/run_edge_list.py) - cuGraph SCC 实现
-- [run_both_algorithms.py](run_both_algorithms.py) - 主测试脚本
+- [cugraph-main/run_edge_list.py](cugraph-main/run_edge_list.py) - cuGraph 原生 SCC
+- [run_both_algorithms.py](run_both_algorithms.py) - 对比测试脚本
 
-**GPU 算法：**
-- Gardenia cuGraph - 基于 cuGraph API 的 GPU 加速实现
-- cuGraph 原生实现
+**使用方式：**
+```bash
+python run_both_algorithms.py
+```
 
-**数据集：**
-- `test/` 目录包含测试数据集
-- 支持 TLC 标准图格式
+### 2. TLA+ 规范与示例
 
-### 2. TLA+ Specifications (TLA+ 规范示例)
+**根目录规范文件：**
+- [tlc/DieHard.tla](tlc/DieHard.tla) - DieHard 问题规范
+- [tlc/MissionariesAndCannibals.tla](tlc/MissionariesAndCannibals.tla) - 传教士与食人者问题
+- [tlc/MultiPaxos.tla](tlc/MultiPaxos.tla) - MultiPaxos 共识算法
+- [tlc/Nano.tla](tlc/Nano.tla) - NanoBlockchain 规范
+- [tlc/ReadersWriters.tla](tlc/ReadersWriters.tla) - 读者写者问题
+- [tlc/EWD840.tla](tlc/EWD840.tla) - EWD840 分布式算法
+- [tlc/SyncTerminationDetection.tla](tlc/SyncTerminationDetection.tla) - 同步终止检测
 
-[tlc/examples/](tlc/examples/) 目录包含 TLA+ 规范示例：
+**examples/ 完整示例：**
+- [tlc/examples/DieHard/](tlc/examples/DieHard/) - DieHard 完整示例
+- [tlc/examples/MissionariesAndCannibals/](tlc/examples/MissionariesAndCannibals/) - 传教士与食人者
+- [tlc/examples/MultiPaxos-SMR/](tlc/examples/MultiPaxos-SMR/) - MultiPaxos SMR 实现
+- [tlc/examples/NanoBlockchain/](tlc/examples/NanoBlockchain/) - NanoBlockchain 实现
+- [tlc/examples/ReadersWriters/](tlc/examples/ReadersWriters/) - 读者写者问题
+- [tlc/examples/ewd840/](tlc/examples/ewd840/) - EWD840 分布式算法
 
-| 示例 | 文件 |
-|------|------|
-| DieHard | `tlc/examples/DieHard/DieHard.tla` |
-| Missionaries and Cannibals | `tlc/examples/MissionariesAndCannibals/` |
-| MultiPaxos-SMR | `tlc/examples/MultiPaxos-SMR/` |
-| NanoBlockchain | `tlc/examples/NanoBlockchain/` |
-| ReadersWriters | `tlc/examples/ReadersWriters/` |
-| EWD840 | `tlc/examples/ewd840/` |
+### 3. Gardenia 图计算框架
 
-**TLC 根目录：**
-- [tlc/](tlc/) - 包含主要 TLA+ 规范文件
-- 测试状态文件保存在 `tlc/states/` 目录
+[gardenia-master/](gardenia-master/) 包含多种图算法实现：
 
-### 3. Gardenia Framework (Gardenia 图计算框架)
+**图分析算法：**
+- BFS (广度优先搜索)
+- SCC (强连通分量)
+- PageRank
+- SSSP (单源最短路径)
+- CC (连通分量)
+- BC (介数中心性)
+- MST (最小生成树)
+- SpMV (稀疏矩阵向量乘)
+- VC (顶点着色)
+- SymGS (对称高斯-赛德尔平滑)
 
-[gardenia-master/](gardenia-master/) - 高性能图计算框架源码，包含：
-- `src/` - 核心源代码（BFS, SCC, PageRank 等）
-- `include/` - 头文件
-- `datasets/` - 测试数据集
+**图挖掘算法：**
+- FSM (频繁子图挖掘)
+- KCL (K-Core 查询)
+- Motif (Motif 计数)
+- SGL (子图匹配)
 
-### 4. cuGraph (cuGraph 图计算库)
+### 4. cuGraph RAPIDS
 
-[cugraph-main/](cugraph-main/) - RAPIDS cuGraph 源码和实验结果
+[cugraph-main/](cugraph-main/) 是 RAPIDS cuGraph 库的完整源码和实验数据。
 
 ## 环境要求
 
 - Python 3.8+
-- CUDA 11.0+ (GPU 版本)
+- CUDA 11.0+ (GPU 计算)
 - cuGraph (RAPIDS)
-- TLA+ Toolbox (用于 TLC 规范验证)
-
-## 作者
-
-dbhhhh
-
-## 许可证
-
-MIT License
-
-## 算法说明
-
-### 1. Gardenia SCC (GPU)
-
-Gardenia 是一个高性能图计算框架，本项目使用 cuGraph API 实现的 GPU 版本 SCC 算法。
-
-**核心文件：** `gardenia_scc_gpu.py`
-
-**特点：**
-- 基于 GPU 加速
-- 使用 cuGraph 强大的图计算能力
-- 适用于大规模图数据处理
-
-### 2. cuGraph SCC
-
-cuGraph 是 RAPIDS 生态系统的图计算库，提供了原生的 SCC 实现。
-
-**核心文件：** `cugraph-main/run_edge_list.py`
-
-**特点：**
-- NVIDIA RAPIDS 官方库
-- 深度优化 GPU 性能
-- 支持多种图算法
-
-## 数据集
-
-本项目使用 **TLC（Transportation Learning Challenge）生成的数据集**进行算法测试。
-
-### 测试数据集
-
-| 数据集 | 大小 | 边数 | 说明 |
-|--------|------|------|------|
-| `small_test.txt` | ~0 MB | 少量 | 小规模测试数据 |
-| `soc-Epinions1.txt` | 5.4 MB | 508,837 | 中等规模数据集 |
-| `edge_list.txt` | 22.99 MB | 1,623,127 | 大规模数据集 |
-| `Amazon0601.txt` | 45.64 MB | 3,233,163 | 大规模数据集 |
-| `twitter_combined.txt` | 42.49 MB | 2,997,444 | 大规模数据集 |
-| `WikiTalk.txt` | 63.39 MB | 2,394,385 | 大规模数据集 |
-| `web-Google.txt` | 71.89 MB | 3,691,463 | 超大规模数据集 |
-
-### 数据集来源
-
-所有测试数据集均来自 SNAP（Stanford Network Analysis Project）和真实网络拓扑数据，符合 TLC 标准图格式。
-
-**数据集格式：**
-```
-# 注释行（可选）
-source_vertex destination_vertex
-source_vertex destination_vertex
-...
-```
-
-## 项目结构
-
-```
-├── run_both_algorithms.py      # 主测试脚本
-├── gardenia_scc_gpu.py          # Gardenia SCC GPU 实现
-├── cugraph-main/               # cuGraph 源码
-│   └── run_edge_list.py        # cuGraph SCC 实现
-└── gardenia-master/            # Gardenia 源码
-    ├── bin/                    # 编译后的可执行文件
-    └── src/                    # 源代码
-```
-
-## 使用方法
-
-### 环境要求
-
-- Python 3.8+
-- CUDA 11.0+
-- cuGraph (RAPIDS)
-- WSL (Windows Subsystem for Linux)
-
-### 运行测试
-
-```bash
-# 使用默认数据集（桌面 test 文件夹）
-python run_both_algorithms.py
-
-# 指定单个数据集
-python run_both_algorithms.py d:\Desktop\test\soc-Epinions1.txt
-
-# 指定多个数据集
-python run_both_algorithms.py d:\Desktop\test\small_test.txt d:\Desktop\test\soc-Epinions1.txt
-```
-
-### 输出结果
-
-测试完成后会生成：
-- **CSV 文件**：包含所有算法的详细性能指标
-- **Word 文档**：可视化对比表格和总结报告
-
-## 性能指标
-
-测试对比以下指标：
-
-| 指标 | 说明 |
-|------|------|
-| 顶点数 | 图中顶点总数 |
-| 边数 | 图中有向边总数 |
-| SCC 总数 | 强连通分量数量 |
-| 最大 SCC 大小 | 最大强连通分量包含的顶点数 |
-| 计算时间 | 算法执行时间（秒） |
-| 内存使用 | RSS 峰值内存（MB） |
-
-## 算法原理
-
-### 强连通分量 (Strongly Connected Components)
-
-强连通分量是指图中的一个子集，其中任意两个顶点之间都存在路径相连。在有向图中，SCC 分析是理解图结构的重要基础。
-
-### Kosaraju 算法
-
-两个算法都采用基于 Kosaraju 的算法实现：
-1. 第一次 DFS 获取拓扑顺序
-2. 反转图
-3. 第二次 DFS 按照拓扑顺序识别 SCC
-
-## 实验环境
-
-- **GPU**: NVIDIA RTX 3060 (6GB)
-- **CPU**: 多核处理器
-- **内存**: 7.6 GB
-- **操作系统**: Windows 11 + WSL2
+- TLA+ Toolbox (用于 TLC 模型检查)
 
 ## 作者
 
